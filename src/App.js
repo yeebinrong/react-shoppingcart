@@ -1,18 +1,20 @@
 import './App.css';
 import React from 'react';
 import Form from 'react-bootstrap/Form'
+import Button from 'react-bootstrap/Button'
 
 class ProductForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       name: '',
-      price: ''
+      price: '',
+      validated: false
     };
-
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
+
 
   handleInputChange (event) {
     const target = event.target;
@@ -23,29 +25,44 @@ class ProductForm extends React.Component {
   }
 
   handleSubmit(event) {
-    alert('A name was submitted: ' + this.state.name + ' ' + this.state.price);
+    const form = event.currentTarget;
     event.preventDefault();
+    console.info(form.checkValidity())
+    if (form.checkValidity() === false) {
+      event.stopPropagation();
+    } else {
+      alert('A name was submitted: ' + this.state.name + ' ' + this.state.price);
+      this.setState({
+        name: '',
+        price: '',
+      })
+    }
+
+    this.setState({validated: true});
   }
 
   render() {
     return (
-      <Form onSubmit={this.handleSubmit} className="mt-5 column" noValidate>
-        <div className="row">
+      <Form className="mt-5 column" ref="form" onSubmit={this.handleSubmit} noValidate validated={this.state.validated}>
+        <Form.Row>
           <Form.Group controlId="formProductName">
             <Form.Label>Product Name: </Form.Label>
-            <Form.Control type="text" name="name" placeholder="Enter product name." value={this.state.name} onChange={this.handleInputChange} />
-            <Form.Text className="text-muted">
-              We'll never share your email with anyone else.
-            </Form.Text>
+            <Form.Control type="text" required name="name" placeholder="Enter product name." value={this.state.name} onChange={this.handleInputChange} />
+            <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+            <Form.Control.Feedback type="invalid">
+              Please enter a name.
+            </Form.Control.Feedback>
           </Form.Group> 
-        </div>
-        <div className="row">
-          <label>Product price: <input type="text" name="price" value={this.state.price} onChange={this.handleInputChange }/>
-          </label>
-        </div>
-        <div className="row-6">
-          <button type="submit">Submit</button>
-        </div>
+        </Form.Row>
+        <Form.Row>
+          <Form.Group controlId="formProductName">
+              <Form.Label>Product Price: </Form.Label>
+              <Form.Control type="text" required name="price" placeholder="Enter product price." value={this.state.price} onChange={this.handleInputChange} />
+            </Form.Group> 
+        </Form.Row>
+        <Form.Row>
+          <Button variant="primary" type="submit">Submit</Button>
+        </Form.Row>
       </Form>
     );
   }
@@ -59,14 +76,14 @@ class ShoppingCart extends React.Component {
   render() {
     return (
       <table className="border m-3">
-        <th>
+        <thead>
           <tr>
             <td className="pl-5 pr-5">Id</td>
             <td className="pl-5 pr-5">Name</td>
             <td className="pl-5 pr-5">Price</td>
             <td className="pl-5 pr-5">Qty</td>
           </tr>
-        </th>
+        </thead>
         <tbody>
         </tbody>
       </table>
