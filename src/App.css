@@ -37,7 +37,6 @@
   }
 }
 
-.col-centered{
-  margin: 0 auto;
-  float: none;
+.select {
+  appearance: none;
 }
