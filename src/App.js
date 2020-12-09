@@ -6,9 +6,6 @@ import axios from 'axios';
 import ReactDOM from 'react-dom';
 
 class ProductForm extends React.Component {
-  constructor(props){
-    super(props)
-  }
   render() {
     return (
       <Form className="mt-5 column" onSubmit={this.props.handleSubmit} noValidate validated={this.props.form.validated}>
@@ -22,7 +19,7 @@ class ProductForm extends React.Component {
         </Form.Group> 
         <Form.Group>
             <Form.Label>Product Price</Form.Label>
-            <Form.Control type="text" required name="price" placeholder="Enter product price." value={this.props.form.price} onChange={this.props.handleInputChange} />
+            <Form.Control type="number" required name="price" placeholder="Enter product price." value={this.props.form.price} onChange={this.props.handleInputChange} />
             <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
             <Form.Control.Feedback type="invalid">
             Please enter a product price.
@@ -51,26 +48,23 @@ class Main extends React.Component {
       form:{
         name: '',
         price: '',
-        qty: 1,
-        validated: false
+        qty: "1",
+        validated: false,
       },
       listItems: []
     };
+
   }
 
   // handle user input to text field
   handleInputChange = (event) => {
-    console.info(this.state.form)
     const value = event.target.value;
     const name = event.target.name;
-    console.info(name)
-    this.setState(
-      {form: {
-          [name]: value,
-          validated: true
-        }
-      }
-    );
+    this.setState( state => {
+      state.form[name] = value;
+      state.form.validated = true;
+      return state;
+    });
   }
 
   // handle user clicking submit button
@@ -80,23 +74,39 @@ class Main extends React.Component {
     if (form.checkValidity() === false) {
       event.stopPropagation();
     } else {
-      alert('A submission was made: ' + this.state.form.name + ' ' + this.state.form.price + ' ' + this.state.form.qty);
-      const product = {...this.state.form.splice(3, 1)};
+      alert('A submission was made.');
+      const product = {...this.state.form};
+      delete product.validated;
       this.setState({
         form:{
           name: '',
           price: '',
-          qty: 1,
+          qty: "1",
           validated: false
         },
       })
+      console.info(product)
       this.postData(product);
     }
   }
 
+  deleteProduct (id) {
+    if (window.confirm('Delete this product?')) {
+      axios.delete('https://27h7h6zsj5.execute-api.us-east-1.amazonaws.com/dev/products/' + id)
+      .then (() => {
+        this.getList();
+      })
+      console.info(id)
+    } else {
+
+    }
+  }
+
   postData (product) {
-    axios.post('https://27h7h6zsj5.execute-api.us-east-1.amazonaws.com/dev/products', product);
-    this.getList();
+    axios.post('https://27h7h6zsj5.execute-api.us-east-1.amazonaws.com/dev/products', product)
+    .then (() => {
+      this.getList();
+    })
   }
 
   getList = () => {
@@ -104,12 +114,12 @@ class Main extends React.Component {
     .then (res => {
       const data = res['data'].map(d => {
       return(
-        <tr key={d.name}>
+        <tr key={d.id}>
         {/* <td>{d.id}</td> */}
         <td>{d.name}</td>
         <td>{d.price}</td>
         <td>{d.qty}</td>
-        <button>X</button>
+        <td type="button" onClick={() => this.deleteProduct(d.id)} className="border p1 red">X</td>
       </tr>)})
       this.setState({listItems: data});
       ReactDOM.render(this.state.listItems, document.getElementById('tableData'));
