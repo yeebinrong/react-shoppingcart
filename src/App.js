@@ -13,24 +13,19 @@ class ProductForm extends React.Component {
       price: '',
       qty: 1,
       validated: false
-
     };
-    this.handleInputChange = this.handleInputChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  handleInputChange (event) {
-    const target = event.target;
-    const value = target.value;
-    const name = target.name;
+  handleInputChange = (event) => {
+    const value = event.target.value;
+    const name = event.target.name;
     this.setState({[name]: value});
     this.setState({validated: true});
   }
 
-  handleSubmit(event) {
+  handleSubmit = (event) => {
     const form = event.currentTarget;
     event.preventDefault();
-    console.info(form.checkValidity())
     if (form.checkValidity() === false) {
       event.stopPropagation();
     } else {
@@ -53,7 +48,7 @@ class ProductForm extends React.Component {
 
   render() {
     return (
-      <Form className="mt-5 column" ref="form" onSubmit={this.handleSubmit} noValidate validated={this.state.validated}>
+      <Form className="mt-5 column" onSubmit={this.handleSubmit} noValidate validated={this.state.validated}>
         <Form.Group>
           <Form.Label>Product Name</Form.Label>
           <Form.Control type="text" required name="name" placeholder="Enter product name." value={this.state.name} onChange={this.handleInputChange} />
@@ -133,16 +128,72 @@ class ShoppingCart extends React.Component {
   }
 }
 
-function App() {
-  return (
+class Main extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      form:{
+        name: '',
+        price: '',
+        qty: 1,
+        validated: false
+      },
+      listItems: []
+    };
+  }
+
+  // handle user input to text field
+  handleInputChange = (event) => {
+    const value = event.target.value;
+    const name = event.target.name;
+    this.setState(
+      {form: {
+          [name]: value,
+          validated: true
+        }
+      }
+    );
+  }
+
+  // handle user clicking submit button
+  handleSubmit = (event) => {
+    const form = event.currentTarget;
+    event.preventDefault();
+    if (form.checkValidity() === false) {
+      event.stopPropagation();
+    } else {
+      alert('A submission was made: ' + this.state.form.name + ' ' + this.state.form.price + ' ' + this.state.form.qty);
+      const product = {...this.state.form.splice(3, 1)};
+      // delete product.validated;
+      this.setState({
+        form:{
+          name: '',
+          price: '',
+          qty: 1,
+          validated: false
+        },
+      })
+      this.postData(product);
+    }
+  }
+
+  render() {
+    return  (
       <div className="row">
         <div className="col-6">
-            <ProductForm></ProductForm>
+            <ProductForm form={this.state.form} handleInputChange={this.handleInputChange} handleSubmit={this.handleSubmit}></ProductForm>
         </div>
         <div className="col-6">
-            <ShoppingCart></ShoppingCart>
+            <ShoppingCart listItems={this.state.listItems}></ShoppingCart>
         </div>
       </div>
+    );
+  }
+}
+
+function App() {
+  return (
+      <Main></Main>
   );
 }
 
