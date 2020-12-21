@@ -96,7 +96,7 @@ class Main extends React.Component {
         'content-type': 'application/json'
       }
     }
-    let body = '{"client_id":"tCT3ZoeWDTncSqdVPNV5OH1WW58d2tIR","client_secret":"HmBWXT1U0CzykuZWBltviL88EA1aGIOlUCui18peYdT1Sry6yao_GdoTUsOa5AE1","audience":"https://Auth0-API-practice","grant_type":"client_credentials"}'
+    let body = `{"client_id":${process.env.client_id},"client_secret":${process.env.client_secret},"audience":"https://Auth0-API-practice","grant_type":"client_credentials"}`
     return axios.post('https://yeebinrong.us.auth0.com/oauth/token', body, config)
     .then((result) => {
       let token = `Bearer ${result.data.access_token}`
@@ -131,6 +131,7 @@ class Main extends React.Component {
           'Authorization': token,
         }
       }
+      console.info(token)
       axios.get('https://27h7h6zsj5.execute-api.us-east-1.amazonaws.com/dev2/products', config)
         .then (res => {
         const data = res['data'].map(d => {
