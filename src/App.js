@@ -90,6 +90,20 @@ class Main extends React.Component {
     }
   }
 
+  getToken () {
+    let config = {
+      headers: {
+        'content-type': 'application/json'
+      }
+    }
+    let body = '{"client_id":"tCT3ZoeWDTncSqdVPNV5OH1WW58d2tIR","client_secret":"HmBWXT1U0CzykuZWBltviL88EA1aGIOlUCui18peYdT1Sry6yao_GdoTUsOa5AE1","audience":"https://Auth0-API-practice","grant_type":"client_credentials"}'
+    return axios.post('https://yeebinrong.us.auth0.com/oauth/token', body, config)
+    .then((result) => {
+      let token = `Bearer ${result.data.access_token}`
+      return token
+    })
+  }
+
   deleteProduct (id) {
     if (window.confirm('Delete this product?')) {
       axios.delete('https://27h7h6zsj5.execute-api.us-east-1.amazonaws.com/dev/products/' + id)
@@ -110,20 +124,43 @@ class Main extends React.Component {
   }
 
   getList = () => {
-    axios.get(`https://27h7h6zsj5.execute-api.us-east-1.amazonaws.com/dev/products`)
-    .then (res => {
-      const data = res['data'].map(d => {
-      return(
-        <tr key={d.id}>
-        {/* <td>{d.id}</td> */}
-        <td>{d.name}</td>
-        <td>{d.price}</td>
-        <td>{d.qty}</td>
-        <td type="button" onClick={() => this.deleteProduct(d.id)} className="border p1 red">X</td>
-      </tr>)})
-      this.setState({listItems: data});
-      ReactDOM.render(this.state.listItems, document.getElementById('tableData'));
+    this.getToken()
+    .then((token) => {
+      let config = {
+        headers: {
+          'Authorization': token,
+        }
+      }
+      axios.get('https://27h7h6zsj5.execute-api.us-east-1.amazonaws.com/dev2/products', config)
+        .then (res => {
+        const data = res['data'].map(d => {
+        return(
+          <tr key={d.id}>
+          {/* <td>{d.id}</td> */}
+          <td>{d.name}</td>
+          <td>{d.price}</td>
+          <td>{d.qty}</td>
+          <td type="button" onClick={() => this.deleteProduct(d.id)} className="border p1 red">X</td>
+        </tr>)})
+        this.setState({listItems: data});
+        ReactDOM.render(this.state.listItems, document.getElementById('tableData'));
+      })
     })
+
+    // axios.get(`https://27h7h6zsj5.execute-api.us-east-1.amazonaws.com/dev/products`)
+    // .then (res => {
+    //   const data = res['data'].map(d => {
+    //   return(
+    //     <tr key={d.id}>
+    //     {/* <td>{d.id}</td> */}
+    //     <td>{d.name}</td>
+    //     <td>{d.price}</td>
+    //     <td>{d.qty}</td>
+    //     <td type="button" onClick={() => this.deleteProduct(d.id)} className="border p1 red">X</td>
+    //   </tr>)})
+    //   this.setState({listItems: data});
+    //   ReactDOM.render(this.state.listItems, document.getElementById('tableData'));
+    // })
   }
 
   componentDidMount() {
